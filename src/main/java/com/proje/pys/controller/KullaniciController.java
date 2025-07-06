@@ -2,8 +2,9 @@ package com.proje.pys.controller;
 
 import com.proje.pys.entity.Kullanici;
 import com.proje.pys.service.KullaniciServisi;
-import org.springframework.http.ResponseEntity;
 import com.proje.pys.dto.KullaniciDto;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -19,30 +20,32 @@ public class KullaniciController {
 
     // Tüm kullanıcıları getir
     @GetMapping
-    public List<Kullanici> tumKullanicilar() {
-        return kullaniciServisi.tumKullanicilariGetir();
+    public ResponseEntity<List<Kullanici>> tumKullanicilar() {
+        List<Kullanici> kullanicilar = kullaniciServisi.tumKullanicilariGetir();
+        return ResponseEntity.ok(kullanicilar);
     }
 
     // Belirli bir kullanıcıyı getir
     @GetMapping("/{id}")
-    public Kullanici kullaniciGetir(@PathVariable Long id) {
-        return kullaniciServisi.kullaniciGetir(id);
+    public ResponseEntity<Kullanici> kullaniciGetir(@PathVariable Long id) {
+        Kullanici kullanici = kullaniciServisi.kullaniciGetir(id);
+        if (kullanici == null) {
+            return ResponseEntity.notFound().build(); // Kullanıcı bulunamazsa 404 döner
+        }
+        return ResponseEntity.ok(kullanici);
     }
 
     // Yeni kullanıcı oluştur
     @PostMapping
-    public Kullanici kullaniciEkle(@RequestBody KullaniciDto kullaniciDto) {
-        Kullanici kullanici = new Kullanici();
-        kullanici.setIsim(kullaniciDto.getIsim());
-        kullanici.setEposta(kullaniciDto.getEposta());
-        kullanici.setSifre(kullaniciDto.getSifre());
-        return kullaniciServisi.kullaniciOlustur(kullanici, kullaniciDto.getRolId());
+    public ResponseEntity<Kullanici> kullaniciEkle(@RequestBody KullaniciDto kullaniciDto) {
+        Kullanici yeniKullanici = kullaniciServisi.kullaniciOlustur(kullaniciDto);
+        return ResponseEntity.status(HttpStatus.CREATED).body(yeniKullanici);
     }
 
     // Kullanıcıyı güncelle
     @PutMapping("/{id}")
-    public ResponseEntity<Kullanici> kullaniciGuncelle(@PathVariable Long id, @RequestBody Kullanici kullanici) {
-        Kullanici guncellenmisKullanici = kullaniciServisi.kullaniciGuncelle(id, kullanici);
+    public ResponseEntity<Kullanici> kullaniciGuncelle(@PathVariable Long id, @RequestBody KullaniciDto kullaniciDto) {
+        Kullanici guncellenmisKullanici = kullaniciServisi.kullaniciGuncelle(id, kullaniciDto);
         return ResponseEntity.ok(guncellenmisKullanici);
     }
 

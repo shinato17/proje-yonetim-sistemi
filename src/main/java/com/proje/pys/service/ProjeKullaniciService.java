@@ -70,4 +70,10 @@ public class ProjeKullaniciService {
     public List<ProjeKullanici> getProjelerByKullaniciId(Long kullaniciId) {
         return projeKullaniciRepository.findByKullaniciId(kullaniciId);
     }
+
+    // Yeni eklenen metot
+    public Kullanici getKullaniciByEposta(String eposta) {
+        return kullaniciRepository.findByEposta(eposta)
+                .orElseThrow(() -> new RuntimeException("Kullanıcı bulunamadı"));
+    }
 }

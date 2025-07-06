@@ -12,14 +12,14 @@ public class Proje {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(name = "isim", nullable = false) // nullable = false eklenebilir
+    @Column(name = "isim", nullable = false) //
     private String isim;
 
     @Column(name = "aciklama")
     private String aciklama;
 
     @ManyToOne
-    @JoinColumn(name = "durum_id", nullable = false) // durum_id için nullable = false eklenebilir
+    @JoinColumn(name = "durum_id", nullable = true)
     private ProjeDurumu durum;
 
     @Column(name = "olusturma_tarihi", nullable = false, updatable = false)

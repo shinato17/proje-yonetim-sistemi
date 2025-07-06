@@ -1,7 +1,11 @@
 package com.proje.pys.service;
 
 import com.proje.pys.entity.Proje;
+import com.proje.pys.entity.ProjeKullanici;
+import com.proje.pys.entity.Kullanici;
 import com.proje.pys.repository.ProjeRepository;
+import com.proje.pys.repository.KullaniciRepository;
+import com.proje.pys.repository.ProjeKullaniciRepository;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -9,33 +13,49 @@ import java.util.List;
 @Service
 public class ProjeService {
     private final ProjeRepository projeRepository;
+    private final KullaniciRepository kullaniciRepository;
+    private final ProjeKullaniciRepository projeKullaniciRepository;
 
-    public ProjeService(ProjeRepository projeRepository) {
+    public ProjeService(ProjeRepository projeRepository,
+                        KullaniciRepository kullaniciRepository,
+                        ProjeKullaniciRepository projeKullaniciRepository) {
         this.projeRepository = projeRepository;
+        this.kullaniciRepository = kullaniciRepository;
+        this.projeKullaniciRepository = projeKullaniciRepository;
     }
 
-    // Tüm projeleri getir
     public List<Proje> tumProjeleriGetir() {
         return projeRepository.findAll();
     }
 
-    // Yeni bir proje oluştur
     public Proje projeOlustur(Proje proje) {
         return projeRepository.save(proje);
     }
 
-    // Projeyi sil
     public void projeSil(Long id) {
         projeRepository.deleteById(id);
     }
 
-    // Projeyi güncelle
     public Proje projeGuncelle(Long id, Proje proje) {
-        // Proje var mı kontrol et
         if (!projeRepository.existsById(id)) {
             throw new RuntimeException("Proje bulunamadı: " + id);
         }
-        proje.setId(id); // Güncellenen proje ID'sini ayarla
-        return projeRepository.save(proje); // Güncellenmiş projeyi kaydet
+        proje.setId(id);
+        return projeRepository.save(proje);
+    }
+
+    public List<Proje> kullaniciyaGoreProjeleriGetir(String eposta) {
+        Kullanici kullanici = kullaniciRepository.findByEposta(eposta)
+                .orElseThrow(() -> new RuntimeException("Kullanıcı bulunamadı"));
+
+        if (kullanici.getRol().getIsim().equals("Yönetici")) {
+            return projeRepository.findAll();
+        }
+
+        List<ProjeKullanici> iliskiler = projeKullaniciRepository.findByKullaniciId(kullanici.getId());
+        return iliskiler.stream()
+                .map(ProjeKullanici::getProje)
+                .distinct()
+                .toList();
     }
 }

@@ -3,12 +3,12 @@ CREATE TABLE IF NOT EXISTS roller (
                         isim VARCHAR(50) NOT NULL UNIQUE
 );
 
-CREATE TABLE proje_durumlari (
+CREATE TABLE IF NOT EXISTS proje_durumlari (
                                  id SERIAL PRIMARY KEY,
                                  isim VARCHAR(50) NOT NULL UNIQUE
 );
 
-CREATE TABLE kullanicilar (
+CREATE TABLE IF NOT EXISTS kullanicilar (
                               id SERIAL PRIMARY KEY,
                               isim VARCHAR(100) NOT NULL,
                               eposta VARCHAR(100) NOT NULL UNIQUE,
@@ -17,7 +17,7 @@ CREATE TABLE kullanicilar (
                               FOREIGN KEY (rol_id) REFERENCES roller(id) ON DELETE RESTRICT
 );
 
-CREATE TABLE projeler (
+CREATE TABLE IF NOT EXISTS projeler (
                           id SERIAL PRIMARY KEY,
                           isim VARCHAR(100) NOT NULL,
                           aciklama TEXT,
@@ -26,7 +26,7 @@ CREATE TABLE projeler (
                           FOREIGN KEY (durum_id) REFERENCES proje_durumlari(id) ON DELETE SET NULL
 );
 
-CREATE TABLE proje_kullanicilari (
+CREATE TABLE IF NOT EXISTS proje_kullanicilari (
                                      id SERIAL PRIMARY KEY,
                                      proje_id INTEGER NOT NULL,
                                      kullanici_id INTEGER NOT NULL,

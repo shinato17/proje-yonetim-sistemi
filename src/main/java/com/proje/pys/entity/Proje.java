@@ -1,18 +1,17 @@
 package com.proje.pys.entity;
 
 import jakarta.persistence.*;
-import lombok.Data;
 import java.time.LocalDateTime;
 
-@Data
 @Entity
 @Table(name = "projeler")
 public class Proje {
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(name = "isim", nullable = false) //
+    @Column(name = "isim", nullable = false)
     private String isim;
 
     @Column(name = "aciklama")
@@ -30,9 +29,45 @@ public class Proje {
         olusturmaTarihi = LocalDateTime.now();
     }
 
-    // Getter ve Setter'lar (Lombok ile otomatik olarak oluşturuluyor)
-    // Ancak setId metodunu manuel olarak ekleyebilirsiniz
+    // === GETTER'lar ===
+    public Long getId() {
+        return id;
+    }
+
+    public String getIsim() {
+        return isim;
+    }
+
+    public String getAciklama() {
+        return aciklama;
+    }
+
+    public ProjeDurumu getDurum() {
+        return durum;
+    }
+
+    public LocalDateTime getOlusturmaTarihi() {
+        return olusturmaTarihi;
+    }
+
+    // === SETTER'lar ===
     public void setId(Long id) {
         this.id = id;
+    }
+
+    public void setIsim(String isim) {
+        this.isim = isim;
+    }
+
+    public void setAciklama(String aciklama) {
+        this.aciklama = aciklama;
+    }
+
+    public void setDurum(ProjeDurumu durum) {
+        this.durum = durum;
+    }
+
+    public void setOlusturmaTarihi(LocalDateTime olusturmaTarihi) {
+        this.olusturmaTarihi = olusturmaTarihi;
     }
 }

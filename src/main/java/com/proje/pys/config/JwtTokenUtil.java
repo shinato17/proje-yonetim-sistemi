@@ -1,77 +1,83 @@
 package com.proje.pys.config;
 
-import io.jsonwebtoken.Claims;
-import io.jsonwebtoken.Jwts;
-import io.jsonwebtoken.SignatureAlgorithm;
-import io.jsonwebtoken.io.Decoders;
+import com.proje.pys.repository.KullaniciRepository;
+import io.jsonwebtoken.*;
 import io.jsonwebtoken.security.Keys;
-import org.springframework.beans.factory.annotation.Value; // Bu import eklendi
 import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.stereotype.Service;
+import org.springframework.stereotype.Component;
+
+import java.nio.charset.StandardCharsets;
 import java.security.Key;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 import java.util.function.Function;
 
-@Service
+@Component
 public class JwtTokenUtil {
 
-    // SECRET_KEY'i application.properties dosyasından okuyacak şekilde güncellendi
-    @Value("${application.security.jwt.secret-key}")
-    private String secretKey;
+    private static final String SECRET = "PROJE_YONETIM_SISTEMI_SECRET_KEY_PROJE_YONETIM_SECRET_KEY";
+    private static final Key key = Keys.hmacShaKeyFor(SECRET.getBytes(StandardCharsets.UTF_8));
 
-    // Token'ın geçerlilik süresi (milisaniye cinsinden)
-    @Value("${application.security.jwt.expiration}")
-    private long jwtExpiration;
+    private final KullaniciRepository kullaniciRepository;
+
+    public JwtTokenUtil(KullaniciRepository kullaniciRepository) {
+        this.kullaniciRepository = kullaniciRepository;
+    }
 
     public String generateToken(UserDetails userDetails) {
-        return generateToken(new HashMap<>(), userDetails);
+        Map<String, Object> extraClaims = new HashMap<>();
+
+        // Roller (authority listesi)
+        extraClaims.put("authorities", userDetails.getAuthorities());
+
+        // Kullanıcı ismi (UTF-8 karakter desteğiyle doğrudan ekleniyor)
+        String isim = kullaniciRepository.findByEposta(userDetails.getUsername())
+                .map(k -> k.getIsim())
+                .orElse("");
+        extraClaims.put("isim", isim);
+
+        // E-posta (JWT "subject" olarak da ayarlanıyor)
+        extraClaims.put("eposta", userDetails.getUsername());
+
+        return generateToken(extraClaims, userDetails);
     }
 
     public String generateToken(Map<String, Object> extraClaims, UserDetails userDetails) {
         return Jwts.builder()
                 .setClaims(extraClaims)
                 .setSubject(userDetails.getUsername())
-                .setIssuedAt(new Date(System.currentTimeMillis()))
-                .setExpiration(new Date(System.currentTimeMillis() + jwtExpiration)) // Geçerlilik süresi dışarıdan alındı
-                .signWith(getSignInKey(), SignatureAlgorithm.HS256)
+                .setIssuedAt(new Date())
+                .setExpiration(new Date(System.currentTimeMillis() + 1000 * 60 * 60 * 10)) // 10 saat
+                .signWith(key, SignatureAlgorithm.HS256)
                 .compact();
     }
 
     public boolean isTokenValid(String token, UserDetails userDetails) {
         final String username = extractUsername(token);
-        return (username.equals(userDetails.getUsername())) && !isTokenExpired(token);
-    }
-
-    private boolean isTokenExpired(String token) {
-        return extractExpiration(token).before(new Date());
-    }
-
-    private Date extractExpiration(String token) {
-        return extractClaim(token, Claims::getExpiration);
+        return username.equals(userDetails.getUsername()) && !isTokenExpired(token);
     }
 
     public String extractUsername(String token) {
         return extractClaim(token, Claims::getSubject);
     }
 
-    private <T> T extractClaim(String token, Function<Claims, T> claimsResolver) {
+    public Date extractExpiration(String token) {
+        return extractClaim(token, Claims::getExpiration);
+    }
+
+    private boolean isTokenExpired(String token) {
+        return extractExpiration(token).before(new Date());
+    }
+
+    public <T> T extractClaim(String token, Function<Claims, T> claimsResolver) {
         final Claims claims = extractAllClaims(token);
         return claimsResolver.apply(claims);
     }
 
     private Claims extractAllClaims(String token) {
         return Jwts.parserBuilder()
-                .setSigningKey(getSignInKey())
+                .setSigningKey(key)
                 .build()
                 .parseClaimsJws(token)
                 .getBody();
-    }
-
-    private Key getSignInKey() {
-        // secretKey değişkeni artık application.properties'ten geliyor
-        byte[] keyBytes = Decoders.BASE64.decode(secretKey);
-        return Keys.hmacShaKeyFor(keyBytes);
     }
 }

@@ -1,6 +1,6 @@
-// ProjeController.java
 package com.proje.pys.controller;
 
+import com.proje.pys.dto.ProjeResponse;
 import com.proje.pys.entity.Proje;
 import com.proje.pys.service.ProjeService;
 import org.springframework.http.ResponseEntity;
@@ -8,6 +8,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/api/projeler")
@@ -19,9 +20,13 @@ public class ProjeController {
     }
 
     @GetMapping
-    public List<Proje> tumProjeler(Authentication authentication) {
+    public List<ProjeResponse> kullaniciyaGoreProjeler(Authentication authentication) {
         String eposta = authentication.getName();
-        return projeService.kullaniciyaGoreProjeleriGetir(eposta);
+        List<Proje> projeler = projeService.kullaniciyaGoreProjeleriGetir(eposta);
+
+        return projeler.stream()
+                .map(ProjeResponse::new)
+                .collect(Collectors.toList());
     }
 
     @PostMapping
@@ -37,7 +42,12 @@ public class ProjeController {
 
     @PutMapping("/{id}")
     public ResponseEntity<Proje> projeGuncelle(@PathVariable Long id, @RequestBody Proje proje) {
-        Proje guncellenmisProje = projeService.projeGuncelle(id, proje);
-        return ResponseEntity.ok(guncellenmisProje);
+        if (!projeService.existsById(id)) {
+            return ResponseEntity.notFound().build(); // 404 döndür
+        }
+
+        proje.setId(id); // ID'yi path'ten al
+        Proje guncellenmis = projeService.projeOlustur(proje); // save işlemi
+        return ResponseEntity.ok(guncellenmis);
     }
 }

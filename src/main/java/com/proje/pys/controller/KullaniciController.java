@@ -18,38 +18,28 @@ public class KullaniciController {
         this.kullaniciServisi = kullaniciServisi;
     }
 
-    // Tüm kullanıcıları getir
     @GetMapping
     public ResponseEntity<List<Kullanici>> tumKullanicilar() {
-        List<Kullanici> kullanicilar = kullaniciServisi.tumKullanicilariGetir();
-        return ResponseEntity.ok(kullanicilar);
+        return ResponseEntity.ok(kullaniciServisi.tumKullanicilariGetir());
     }
 
-    // Belirli bir kullanıcıyı getir
     @GetMapping("/{id}")
     public ResponseEntity<Kullanici> kullaniciGetir(@PathVariable Long id) {
         Kullanici kullanici = kullaniciServisi.kullaniciGetir(id);
-        if (kullanici == null) {
-            return ResponseEntity.notFound().build(); // Kullanıcı bulunamazsa 404 döner
-        }
+        if (kullanici == null) return ResponseEntity.notFound().build();
         return ResponseEntity.ok(kullanici);
     }
 
-    // Yeni kullanıcı oluştur
     @PostMapping
-    public ResponseEntity<Kullanici> kullaniciEkle(@RequestBody KullaniciDto kullaniciDto) {
-        Kullanici yeniKullanici = kullaniciServisi.kullaniciOlustur(kullaniciDto);
-        return ResponseEntity.status(HttpStatus.CREATED).body(yeniKullanici);
+    public ResponseEntity<Kullanici> kullaniciEkle(@RequestBody KullaniciDto dto) {
+        return ResponseEntity.status(HttpStatus.CREATED).body(kullaniciServisi.kullaniciOlustur(dto));
     }
 
-    // Kullanıcıyı güncelle
     @PutMapping("/{id}")
-    public ResponseEntity<Kullanici> kullaniciGuncelle(@PathVariable Long id, @RequestBody KullaniciDto kullaniciDto) {
-        Kullanici guncellenmisKullanici = kullaniciServisi.kullaniciGuncelle(id, kullaniciDto);
-        return ResponseEntity.ok(guncellenmisKullanici);
+    public ResponseEntity<Kullanici> kullaniciGuncelle(@PathVariable Long id, @RequestBody KullaniciDto dto) {
+        return ResponseEntity.ok(kullaniciServisi.kullaniciGuncelle(id, dto));
     }
 
-    // Kullanıcıyı sil
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> kullaniciSil(@PathVariable Long id) {
         kullaniciServisi.kullaniciSil(id);

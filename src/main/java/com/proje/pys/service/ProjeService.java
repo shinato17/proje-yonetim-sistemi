@@ -36,12 +36,17 @@ public class ProjeService {
         projeRepository.deleteById(id);
     }
 
-    public Proje projeGuncelle(Long id, Proje proje) {
-        if (!projeRepository.existsById(id)) {
-            throw new RuntimeException("Proje bulunamadı: " + id);
-        }
-        proje.setId(id);
-        return projeRepository.save(proje);
+    public Proje projeGuncelle(Long id, Proje guncelProje) {
+        // 🔒 Güvenli güncelleme: veritabanındaki mevcut kayıt alınıyor
+        Proje mevcut = projeRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Proje bulunamadı: " + id));
+
+        // Alanlar güncelleniyor
+        mevcut.setIsim(guncelProje.getIsim());
+        mevcut.setAciklama(guncelProje.getAciklama());
+        mevcut.setDurum(guncelProje.getDurum()); // varsa
+
+        return projeRepository.save(mevcut);
     }
 
     public List<Proje> kullaniciyaGoreProjeleriGetir(String eposta) {
@@ -57,5 +62,10 @@ public class ProjeService {
                 .map(ProjeKullanici::getProje)
                 .distinct()
                 .toList();
+    }
+
+    // Yeni metod: belirli bir ID'ye sahip projenin var olup olmadığını kontrol etme
+    public boolean existsById(Long id) {
+        return projeRepository.existsById(id);
     }
 }

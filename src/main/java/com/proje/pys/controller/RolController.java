@@ -17,13 +17,11 @@ public class RolController {
         this.rolService = rolService;
     }
 
-    // Tüm rolleri getir
     @GetMapping
     public List<Rol> tumRolleriGetir() {
         return rolService.tumRolleriGetir();
     }
 
-    // Belirli bir rolü getir
     @GetMapping("/{id}")
     public ResponseEntity<Rol> rolGetir(@PathVariable Long id) {
         Rol rol = rolService.rolGetirById(id)
@@ -31,7 +29,6 @@ public class RolController {
         return ResponseEntity.ok(rol);
     }
 
-    // Yeni rol oluştur
     @PostMapping
     public Rol rolOlustur(@RequestBody RolDto rolDto) {
         Rol rol = new Rol();
@@ -39,7 +36,6 @@ public class RolController {
         return rolService.rolOlustur(rol);
     }
 
-    // Rolü güncelle
     @PutMapping("/{id}")
     public ResponseEntity<Rol> rolGuncelle(@PathVariable Long id, @RequestBody RolDto rolDto) {
         Rol rolDetaylari = new Rol();
@@ -48,7 +44,6 @@ public class RolController {
         return ResponseEntity.ok(guncellenmisRol);
     }
 
-    // Rolü sil
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> rolSil(@PathVariable Long id) {
         rolService.rolSil(id);

@@ -1,0 +1,10 @@
+services:
+  - type: web
+    name: proje-yonetim-sistemi
+    env: docker
+    region: oregon
+    plan: free
+    branch: main
+    dockerfilePath: Dockerfile
+    buildCommand: "./mvnw package -DskipTests"
+    startCommand: ""

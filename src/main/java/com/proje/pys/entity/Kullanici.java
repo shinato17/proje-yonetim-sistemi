@@ -22,7 +22,6 @@ public class Kullanici {
     @JoinColumn(name = "rol_id", nullable = false)
     private Rol rol;
 
-    // Manuel Getter ve Setter Metodları
     public Long getId() { return id; }
     public void setId(Long id) { this.id = id; }
     public String getIsim() { return isim; }

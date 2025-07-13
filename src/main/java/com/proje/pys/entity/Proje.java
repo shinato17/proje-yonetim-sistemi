@@ -29,7 +29,7 @@ public class Proje {
         olusturmaTarihi = LocalDateTime.now();
     }
 
-    // === GETTER'lar ===
+
     public Long getId() {
         return id;
     }
@@ -50,7 +50,6 @@ public class Proje {
         return olusturmaTarihi;
     }
 
-    // === SETTER'lar ===
     public void setId(Long id) {
         this.id = id;
     }

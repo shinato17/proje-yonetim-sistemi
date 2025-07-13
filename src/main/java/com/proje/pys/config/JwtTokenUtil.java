@@ -26,16 +26,13 @@ public class JwtTokenUtil {
     public String generateToken(UserDetails userDetails) {
         Map<String, Object> extraClaims = new HashMap<>();
 
-        // Roller (authority listesi)
         extraClaims.put("authorities", userDetails.getAuthorities());
 
-        // Kullanıcı ismi (UTF-8 karakter desteğiyle doğrudan ekleniyor)
         String isim = kullaniciRepository.findByEposta(userDetails.getUsername())
                 .map(k -> k.getIsim())
                 .orElse("");
         extraClaims.put("isim", isim);
 
-        // E-posta (JWT "subject" olarak da ayarlanıyor)
         extraClaims.put("eposta", userDetails.getUsername());
 
         return generateToken(extraClaims, userDetails);

@@ -18,7 +18,7 @@ public class ProjeKullaniciService {
     private final ProjeKullaniciRepository projeKullaniciRepository;
     private final ProjeRepository projeRepository;
     private final KullaniciRepository kullaniciRepository;
-    private final RolRepository rolRepository; // Rol ataması için
+    private final RolRepository rolRepository;
 
     public ProjeKullaniciService(ProjeKullaniciRepository projeKullaniciRepository,
                                  ProjeRepository projeRepository,
@@ -54,7 +54,7 @@ public class ProjeKullaniciService {
         projeKullanici.setProje(proje);
         projeKullanici.setKullanici(kullanici);
         projeKullanici.setRol(rol);
-        projeKullanici.setAtanmaTarihi(atanmaTarihi); // Atanma tarihi dışarıdan alınıyor
+        projeKullanici.setAtanmaTarihi(atanmaTarihi);
 
         return projeKullaniciRepository.save(projeKullanici);
     }

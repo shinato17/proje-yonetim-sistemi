@@ -37,11 +37,9 @@ public class ProjeService {
     }
 
     public Proje projeGuncelle(Long id, Proje guncelProje) {
-        // 🔒 Güvenli güncelleme: veritabanındaki mevcut kayıt alınıyor
         Proje mevcut = projeRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Proje bulunamadı: " + id));
 
-        // Alanlar güncelleniyor
         mevcut.setIsim(guncelProje.getIsim());
         mevcut.setAciklama(guncelProje.getAciklama());
         mevcut.setDurum(guncelProje.getDurum()); // varsa
@@ -64,7 +62,6 @@ public class ProjeService {
                 .toList();
     }
 
-    // Yeni metod: belirli bir ID'ye sahip projenin var olup olmadığını kontrol etme
     public boolean existsById(Long id) {
         return projeRepository.existsById(id);
     }

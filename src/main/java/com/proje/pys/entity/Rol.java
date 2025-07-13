@@ -12,7 +12,6 @@ public class Rol {
     @Column(name = "isim", nullable = false, unique = true)
     private String isim;
 
-    // Getter ve Setter'lar
     public Long getId() {
         return id;
     }

@@ -1,4 +1,4 @@
-CREATE TABLE roller (
+CREATE TABLE IF NOT EXISTS roller (
                         id SERIAL PRIMARY KEY,
                         isim VARCHAR(50) NOT NULL UNIQUE
 );

@@ -23,7 +23,7 @@ public class KullaniciDetayServisi implements UserDetailsService {
     }
 
     @Override
-    public UserDetails loadUserByUsername(String eposta) throws UsernameNotFoundException { // Buradaki boşluk kaldırıldı
+    public UserDetails loadUserByUsername(String eposta) throws UsernameNotFoundException {
         Kullanici kullanici = kullaniciRepository.findByEposta(eposta)
                 .orElseThrow(() -> new UsernameNotFoundException("Kullanici bulunamadi: " + eposta));
 
@@ -39,8 +39,7 @@ public class KullaniciDetayServisi implements UserDetailsService {
         kullanici.setEposta(kullaniciDto.getEposta());
         kullanici.setSifre(kullaniciDto.getSifre());
 
-        // İsim alanı için null kontrolü (opsiyonel)
-        if(kullaniciDto.getIsim() != null) {
+        if (kullaniciDto.getIsim() != null) {
             kullanici.setIsim(kullaniciDto.getIsim());
         }
 

@@ -22,14 +22,43 @@ public class Kullanici {
     @JoinColumn(name = "rol_id", nullable = false)
     private Rol rol;
 
-    public Long getId() { return id; }
-    public void setId(Long id) { this.id = id; }
-    public String getIsim() { return isim; }
-    public void setIsim(String isim) { this.isim = isim; }
-    public String getEposta() { return eposta; }
-    public void setEposta(String eposta) { this.eposta = eposta; }
-    public String getSifre() { return sifre; }
-    public void setSifre(String sifre) { this.sifre = sifre; }
-    public Rol getRol() { return rol; }
-    public void setRol(Rol rol) { this.rol = rol; }
+    public Long getId() {
+        return id;
+    }
+
+    public void setId(Long id) {
+        this.id = id;
+    }
+
+    public String getIsim() {
+        return isim;
+    }
+
+    public void setIsim(String isim) {
+        this.isim = isim;
+    }
+
+    public String getEposta() {
+        return eposta;
+    }
+
+    public void setEposta(String eposta) {
+        this.eposta = eposta;
+    }
+
+    public String getSifre() {
+        return sifre;
+    }
+
+    public void setSifre(String sifre) {
+        this.sifre = sifre;
+    }
+
+    public Rol getRol() {
+        return rol;
+    }
+
+    public void setRol(Rol rol) {
+        this.rol = rol;
+    }
 }

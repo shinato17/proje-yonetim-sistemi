@@ -64,7 +64,7 @@ public class SecurityConfig {
 
     @Bean
     public PasswordEncoder passwordEncoder() {
-        return NoOpPasswordEncoder.getInstance(); // Geliştirme için, prod'da BCrypt!
+        return NoOpPasswordEncoder.getInstance();
     }
 
     @Bean

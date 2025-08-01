@@ -1,30 +1,37 @@
 package com.proje.pys.service;
 
-import com.proje.pys.dto.KullaniciDto;
-import com.proje.pys.entity.Kullanici;
-import com.proje.pys.entity.Rol;
-import com.proje.pys.entity.ProjeKullanici;
-import com.proje.pys.repository.KullaniciRepository;
-import com.proje.pys.repository.ProjeKullaniciRepository;
-import com.proje.pys.repository.RolRepository;
+import java.util.List;
+
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
-import org.springframework.http.HttpStatus;
 
-import java.util.List;
+import com.proje.pys.dto.KullaniciDto;
+import com.proje.pys.entity.Kullanici;
+import com.proje.pys.entity.Mesaj;
+import com.proje.pys.entity.ProjeKullanici;
+import com.proje.pys.entity.Rol;
+import com.proje.pys.repository.KullaniciRepository;
+import com.proje.pys.repository.MesajRepository;
+import com.proje.pys.repository.ProjeKullaniciRepository;
+import com.proje.pys.repository.RolRepository;
 
 @Service
 public class KullaniciServisi {
+
     private final KullaniciRepository kullaniciRepository;
     private final RolRepository rolRepository;
     private final ProjeKullaniciRepository projeKullaniciRepository;
+    private final MesajRepository mesajRepository;
 
     public KullaniciServisi(KullaniciRepository kullaniciRepository,
                             RolRepository rolRepository,
-                            ProjeKullaniciRepository projeKullaniciRepository) {
+                            ProjeKullaniciRepository projeKullaniciRepository,
+                            MesajRepository mesajRepository) {
         this.kullaniciRepository = kullaniciRepository;
         this.rolRepository = rolRepository;
         this.projeKullaniciRepository = projeKullaniciRepository;
+        this.mesajRepository = mesajRepository;
     }
 
     public List<Kullanici> tumKullanicilariGetir() {
@@ -68,6 +75,7 @@ public class KullaniciServisi {
                     .orElseThrow(() -> new RuntimeException("Rol bulunamadı: " + kullaniciDto.getRolId()));
             mevcutKullanici.setRol(yeniRol);
 
+            // ProjeKullanici ilişkilerinde rolü de güncelle
             List<ProjeKullanici> iliskiler = projeKullaniciRepository.findByKullaniciId(id);
             for (ProjeKullanici iliski : iliskiler) {
                 iliski.setRol(yeniRol);
@@ -79,8 +87,20 @@ public class KullaniciServisi {
     }
 
     public void kullaniciSil(Long id) {
+        // Proje ilişkilerini sil
         projeKullaniciRepository.findByKullaniciId(id)
                 .forEach(iliski -> projeKullaniciRepository.deleteById(iliski.getId()));
+
+        // Mesaj ilişkilerini sil (gönderen veya alıcı olan tüm mesajlar)
+        List<Mesaj> mesajlar = mesajRepository.findByGonderenIdOrAliciId(id, id);
+        mesajRepository.deleteAll(mesajlar);
+
+        // Kullanıcıyı sil
         kullaniciRepository.deleteById(id);
+    }
+
+    public Kullanici findByEposta(String eposta) {
+        return kullaniciRepository.findByEposta(eposta)
+                .orElseThrow(() -> new RuntimeException("Kullanıcı bulunamadı: " + eposta));
     }
 }

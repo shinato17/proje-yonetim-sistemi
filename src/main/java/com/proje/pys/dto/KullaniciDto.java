@@ -1,10 +1,19 @@
 package com.proje.pys.dto;
 
 public class KullaniciDto {
+    private Long id;      // yeni eklenen alan
     private String isim;
     private String eposta;
     private String sifre;
     private Long rolId;
+
+    public Long getId() {
+        return id;
+    }
+
+    public void setId(Long id) {
+        this.id = id;
+    }
 
     public String getIsim() {
         return isim;

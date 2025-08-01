@@ -1,57 +1,24 @@
 package com.proje.pys.config;
 
-import com.proje.pys.repository.KullaniciRepository;
-import io.jsonwebtoken.*;
-import io.jsonwebtoken.security.Keys;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.function.Function;
+
+import javax.crypto.SecretKey;
+
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Component;
 
-import java.nio.charset.StandardCharsets;
-import java.security.Key;
-import java.util.*;
-import java.util.function.Function;
+import io.jsonwebtoken.Claims;
+import io.jsonwebtoken.Jwts;
+import io.jsonwebtoken.security.Keys;
 
 @Component
 public class JwtTokenUtil {
 
-    private static final String SECRET = "PROJE_YONETIM_SISTEMI_SECRET_KEY_PROJE_YONETIM_SECRET_KEY";
-    private static final Key key = Keys.hmacShaKeyFor(SECRET.getBytes(StandardCharsets.UTF_8));
-
-    private final KullaniciRepository kullaniciRepository;
-
-    public JwtTokenUtil(KullaniciRepository kullaniciRepository) {
-        this.kullaniciRepository = kullaniciRepository;
-    }
-
-    public String generateToken(UserDetails userDetails) {
-        Map<String, Object> extraClaims = new HashMap<>();
-
-        extraClaims.put("authorities", userDetails.getAuthorities());
-
-        String isim = kullaniciRepository.findByEposta(userDetails.getUsername())
-                .map(k -> k.getIsim())
-                .orElse("");
-        extraClaims.put("isim", isim);
-
-        extraClaims.put("eposta", userDetails.getUsername());
-
-        return generateToken(extraClaims, userDetails);
-    }
-
-    public String generateToken(Map<String, Object> extraClaims, UserDetails userDetails) {
-        return Jwts.builder()
-                .setClaims(extraClaims)
-                .setSubject(userDetails.getUsername())
-                .setIssuedAt(new Date())
-                .setExpiration(new Date(System.currentTimeMillis() + 1000 * 60 * 60 * 10))
-                .signWith(key, SignatureAlgorithm.HS256)
-                .compact();
-    }
-
-    public boolean isTokenValid(String token, UserDetails userDetails) {
-        final String username = extractUsername(token);
-        return username.equals(userDetails.getUsername()) && !isTokenExpired(token);
-    }
+    private final String SECRET_KEY_STRING = "SeninGizliAnahtarınSeninGizliAnahtarın"; // En az 256 bit
+    private final SecretKey SECRET_KEY = Keys.hmacShaKeyFor(SECRET_KEY_STRING.getBytes());
 
     public String extractUsername(String token) {
         return extractClaim(token, Claims::getSubject);
@@ -61,10 +28,6 @@ public class JwtTokenUtil {
         return extractClaim(token, Claims::getExpiration);
     }
 
-    private boolean isTokenExpired(String token) {
-        return extractExpiration(token).before(new Date());
-    }
-
     public <T> T extractClaim(String token, Function<Claims, T> claimsResolver) {
         final Claims claims = extractAllClaims(token);
         return claimsResolver.apply(claims);
@@ -72,9 +35,33 @@ public class JwtTokenUtil {
 
     private Claims extractAllClaims(String token) {
         return Jwts.parserBuilder()
-                .setSigningKey(key)
+                .setSigningKey(SECRET_KEY)
                 .build()
                 .parseClaimsJws(token)
                 .getBody();
+    }
+
+    private Boolean isTokenExpired(String token) {
+        return extractExpiration(token).before(new Date());
+    }
+
+    public String generateToken(UserDetails userDetails) {
+        Map<String, Object> claims = new HashMap<>();
+        return createToken(claims, userDetails.getUsername());
+    }
+
+    private String createToken(Map<String, Object> claims, String subject) {
+        return Jwts.builder()
+                .setClaims(claims)
+                .setSubject(subject)
+                .setIssuedAt(new Date(System.currentTimeMillis()))
+                .setExpiration(new Date(System.currentTimeMillis() + 1000 * 60 * 60 * 10))
+                .signWith(SECRET_KEY)
+                .compact();
+    }
+
+    public Boolean validateToken(String token, UserDetails userDetails) {
+        final String username = extractUsername(token);
+        return (username.equals(userDetails.getUsername()) && !isTokenExpired(token));
     }
 }
